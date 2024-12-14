@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "create-admin": "ts-node -r tsconfig-paths/register scripts/create-admin.ts"
+    "create-admin": "node -r dotenv/config scripts/create-admin.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
@@ -37,7 +37,6 @@
     "react-hook-form": "^7.50.0",
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",
-    "tsconfig-paths": "^4.2.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
