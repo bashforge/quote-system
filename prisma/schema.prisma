@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  role      Role     @default(ADMIN)
+  createdAt DateTime @default(now())
+
+  @@map("users")
+}
+
+model Quote {
+  id                String   @id @default(cuid())
+  status            Status   @default(PENDING)
+  amount            Float?
+  adminNotes        String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Personal Info
+  firstName    String
+  lastName     String
+  companyName  String?
+  address      String
+  phone        String
+  email        String
+
+  // Event Details
+  eventName       String
+  startDateTime   DateTime
+  endDateTime     DateTime
+  earlyCheckIn    Boolean  @default(false)
+  earlyCheckInTime DateTime?
+  rentalType      String
+  duration        Int
+  eventType       String
+  eventTypeOther  String?
+
+  // Venue Selection
+  grandBallroom        Boolean @default(false)
+  outdoorPatio         Boolean @default(false)
+  weddingSite          Boolean @default(false)
+  sideRooms            Boolean @default(false)
+  kitchen              Boolean @default(false)
+  miniConferenceRooms  Boolean @default(false)
+  churchSanctuary      Boolean @default(false)
+  parkingLot           Boolean @default(false)
+
+  // Setup Requirements
+  tableCount          Int     @default(0)
+  tableNeedLinens     Boolean @default(false)
+  tableNeedSetupHelp  Boolean @default(false)
+  chairCount          Int     @default(0)
+  chairNeedSetupHelp  Boolean @default(false)
+  setupChange         Boolean @default(false)
+
+  // Additional Services
+  soundSystem        Boolean @default(false)
+  wirelessMicrophone Boolean @default(false)
+  ledWall            Boolean @default(false)
+  ledScreen          Boolean @default(false)
+  foodAndDrinks      Boolean @default(false)
+  specialRequirements String?
+
+  // Point of Contact
+  pocName   String?
+  pocPhone  String?
+  pocEmail  String?
+
+  // Vendors
+  vendors QuoteVendor[]
+
+  @@map("quotes")
+}
+
+model QuoteVendor {
+  id      String @id @default(cuid())
+  name    String
+  phone   String
+  email   String
+  type    String
+  quoteId String
+  quote   Quote  @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  @@map("quote_vendors")
+}
+
+enum Role {
+  ADMIN
+}
+
+enum Status {
+  PENDING
+  QUOTED
+  ACCEPTED
+  EXPIRED
+}
