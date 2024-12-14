@@ -1,10 +1,10 @@
 import NextAuth from "next-auth"
+import type { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
-import { connectToDatabase } from "@/lib/db/mongodb"
-import { User } from "@/lib/db/models/user"
-import bcrypt from "bcryptjs"
+import { UserService } from "@/lib/services/user.service"
+import { verifyPassword } from "@/lib/auth/password"
 
-const handler = NextAuth({
+export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -17,21 +17,18 @@ const handler = NextAuth({
           throw new Error("Invalid credentials")
         }
 
-        await connectToDatabase()
-        const user = await User.findOne({ email: credentials.email })
-
+        const user = await UserService.findByEmail(credentials.email)
         if (!user || !user.password) {
           throw new Error("Invalid credentials")
         }
 
-        const isValid = await bcrypt.compare(credentials.password, user.password)
-
+        const isValid = await verifyPassword(credentials.password, user.password)
         if (!isValid) {
           throw new Error("Invalid credentials")
         }
 
         return {
-          id: user._id.toString(),
+          id: user.id,
           email: user.email,
           role: user.role,
         }
@@ -58,6 +55,7 @@ const handler = NextAuth({
   session: {
     strategy: "jwt",
   },
-})
+}
 
+const handler = NextAuth(authOptions)
 export { handler as GET, handler as POST }
