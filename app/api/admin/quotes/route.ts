@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
-import { connectToDatabase } from "@/lib/db/mongodb"
-import { Quote } from "@/lib/db/models/quote"
+import { QuoteService } from "@/lib/services/quote.service"
 
 export async function GET(req: Request) {
   try {
@@ -12,12 +11,8 @@ export async function GET(req: Request) {
 
     const { searchParams } = new URL(req.url)
     const status = searchParams.get("status")
-
-    await connectToDatabase()
     
-    const query = status && status !== "all" ? { status } : {}
-    const quotes = await Quote.find(query).sort({ createdAt: -1 })
-
+    const quotes = await QuoteService.findAll(status || undefined)
     return NextResponse.json(quotes)
   } catch (error) {
     console.error("Failed to fetch quotes:", error)
@@ -38,13 +33,7 @@ export async function PATCH(req: Request) {
     const body = await req.json()
     const { id, ...updateData } = body
 
-    await connectToDatabase()
-    
-    const quote = await Quote.findByIdAndUpdate(
-      id,
-      { ...updateData, updatedAt: new Date() },
-      { new: true }
-    )
+    const quote = await QuoteService.updateQuote(id, updateData)
 
     if (!quote) {
       return NextResponse.json(
