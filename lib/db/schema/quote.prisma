@@ -1,0 +1,16 @@
+// Quote-related schema definitions
+model Quote {
+  id                 String    @id @default(cuid())
+  personalInfo       PersonalInfo
+  eventDetails       EventDetails
+  venueSelection     VenueSelection
+  setupRequirements  SetupRequirements
+  additionalServices AdditionalServices?
+  status            Status    @default(PENDING)
+  amount            Float?
+  adminNotes        String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@map("quotes")
+}
