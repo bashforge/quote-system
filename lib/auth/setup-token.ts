@@ -1,14 +1,22 @@
-import crypto from "crypto"
+// Use environment variable for setup token
+const SETUP_TOKEN = process.env.SETUP_TOKEN
 
-// Generate a random setup token on server start
-const SETUP_TOKEN = crypto.randomBytes(32).toString("hex")
+if (!SETUP_TOKEN) {
+  console.warn(
+    "\x1b[33m%s\x1b[0m",
+    "Warning: SETUP_TOKEN environment variable is not set. Admin setup endpoint will be unavailable."
+  )
+}
 
 export function validateSetupToken(token: string | null): boolean {
-  if (!token) return false
+  if (!SETUP_TOKEN || !token) return false
   return token === SETUP_TOKEN
 }
 
-// Export the token so it can be used in setup scripts
-export function getSetupToken(): string {
-  return SETUP_TOKEN
+// For debugging purposes in development
+if (process.env.NODE_ENV === "development") {
+  console.log(
+    "\x1b[36m%s\x1b[0m",
+    `Setup Token: ${SETUP_TOKEN}`
+  )
 }
